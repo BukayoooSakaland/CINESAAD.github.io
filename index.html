@@ -569,6 +569,36 @@
         /* Back home button in dock */
         .dock-btn-home{padding:15px 28px;border-radius:200px;border:1px solid rgba(247,0,0,.25);background:transparent;color:rgba(247,0,0,.5);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;text-transform:uppercase;font-size:.75rem;letter-spacing:3px;transition:all .3s}
         .dock-btn-home:hover{border-color:rgba(247,0,0,.7);color:#f70000;background:rgba(247,0,0,.07)}
+
+        /* ═══ DETAIL PANEL ═══════════════════════════════════════════ */
+        .detail-layer{position:fixed;inset:0;z-index:8000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(18px);opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+        .detail-layer.open{opacity:1;visibility:visible}
+        .detail-box{position:relative;width:100%;max-width:860px;margin:0 20px;background:linear-gradient(135deg,#0e0000 0%,#0a0a0a 100%);border:1px solid rgba(247,0,0,0.18);border-radius:28px;overflow:hidden;transform:scale(.94) translateY(24px);transition:transform .5s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;display:flex;flex-direction:column}
+        .detail-layer.open .detail-box{transform:scale(1) translateY(0)}
+        /* Backdrop image floue derrière */
+        .detail-backdrop{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(60px) brightness(.18) saturate(1.3);z-index:0;transform:scale(1.1)}
+        .detail-content{position:relative;z-index:2;display:flex;gap:0;flex:1;overflow:hidden}
+        /* Poster */
+        .detail-poster{flex-shrink:0;width:200px;min-height:300px;position:relative}
+        .detail-poster img{width:100%;height:100%;object-fit:cover;display:block}
+        .detail-poster::after{content:'';position:absolute;top:0;right:0;bottom:0;width:80px;background:linear-gradient(to right,transparent,#0a0a0a);pointer-events:none}
+        /* Info */
+        .detail-info{flex:1;padding:32px 32px 32px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+        .detail-badge{display:inline-flex;align-items:center;background:rgba(247,0,0,0.9);color:#fff;font-size:.52rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;padding:4px 13px;border-radius:6px;width:fit-content}
+        .detail-title{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:900;color:#fff;line-height:1.15;text-shadow:0 2px 20px rgba(0,0,0,0.8)}
+        .detail-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .detail-meta-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);padding:5px 13px;border-radius:100px;font-size:.7rem;font-weight:700;color:#fff}
+        .detail-meta-pill.red{background:rgba(247,0,0,0.15);border-color:rgba(247,0,0,0.35);color:#ff5555}
+        .detail-divider{height:1px;background:linear-gradient(90deg,rgba(247,0,0,0.4),transparent);margin:4px 0}
+        .detail-synopsis{font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;color:rgba(255,255,255,.78);line-height:1.75;font-weight:400}
+        /* Trailer */
+        .detail-trailer{border-radius:14px;overflow:hidden;position:relative;background:#000;aspect-ratio:16/9;margin-top:4px}
+        .detail-trailer iframe{width:100%;height:100%;border:none;display:block}
+        .detail-trailer-label{font-size:.58rem;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:rgba(247,0,0,0.7);margin-bottom:8px}
+        /* Close btn */
+        .detail-close{position:absolute;top:16px;right:16px;z-index:10;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.6);color:#fff;font-size:.9rem;display:flex;align-items:center;justify-content:center;cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L4 18 L8 14 L11.5 22 L13.5 21 L10 13 L16 13 Z' fill='%23f70000' stroke='%23111' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, pointer;transition:background .2s,border-color .2s;backdrop-filter:blur(8px)}
+        .detail-close:hover{background:rgba(247,0,0,0.3);border-color:rgba(247,0,0,0.6)}
+        @media(max-width:600px){.detail-content{flex-direction:column}.detail-poster{width:100%;min-height:220px;max-height:260px}.detail-poster::after{display:none}.detail-info{padding:20px}}
     </style>
 </head>
 <body>
@@ -865,6 +895,10 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="form-label">Lien YouTube / Bande-annonce (optionnel)</label>
+            <input type="url" id="field-trailer" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        <div class="form-group">
             <label class="form-label">Logo du film (optionnel)</label>
             <div id="drop-zone-logo" style="border:2px dashed #1e1e1e;padding:2rem;text-align:center;border-radius:20px;background:rgba(255,255,255,0.008);transition:border-color .4s,background .4s;cursor:pointer">
                 <span style="font-size:1.8rem;opacity:.2;display:block;margin-bottom:8px">🅛</span>
@@ -876,6 +910,38 @@
         <div class="form-btns">
             <button class="btn-action btn-action-dark" id="btn-modal-cancel"><span class="btn-label">Annuler</span></button>
             <button class="btn-action" id="btn-submit"><span class="btn-label" id="btn-submit-label">SAUVEGARDER</span></button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     DETAIL PANEL — clic sur affiche
+═══════════════════════════════════════════ -->
+<div class="detail-layer" id="detail-layer">
+    <div class="detail-box" id="detail-box">
+        <div class="detail-backdrop" id="detail-backdrop"></div>
+        <button class="detail-close" id="detail-close">✕</button>
+        <div class="detail-content">
+            <!-- Poster -->
+            <div class="detail-poster">
+                <img id="detail-poster-img" src="" alt="">
+            </div>
+            <!-- Infos -->
+            <div class="detail-info">
+                <div class="detail-badge" id="detail-badge">FILM</div>
+                <div class="detail-title" id="detail-title"></div>
+                <div class="detail-meta-row" id="detail-meta-row"></div>
+                <div class="detail-divider"></div>
+                <div class="detail-synopsis" id="detail-synopsis"></div>
+                <!-- Trailer YouTube -->
+                <div id="detail-trailer-wrap" style="display:none">
+                    <div class="detail-trailer-label">▶ BANDE-ANNONCE</div>
+                    <div class="detail-trailer">
+                        <iframe id="detail-iframe" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1147,6 +1213,28 @@ function showToast(msg, type = 'success', dur = 3000) {
     t.addEventListener('click', rm);
 }
 
+/* ── CONVERT EMBED ── */
+function convertToEmbed(raw) {
+    if (!raw) return '';
+    if (raw.includes('youtu')) {
+        let id = '';
+        try {
+            const u = new URL(raw);
+            if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('?')[0];
+            else if (u.pathname.includes('/embed/')) id = u.pathname.split('/embed/')[1]?.split('?')[0] || '';
+            else id = u.searchParams.get('v') || '';
+        } catch { const m = raw.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if (m) id = m[1]; }
+        return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1` : raw;
+    }
+    if (raw.includes('dailymotion') || raw.includes('dai.ly')) {
+        let id = '';
+        if (raw.includes('/video/')) id = raw.split('/video/')[1]?.split('?')[0]?.split('/')[0] || '';
+        else if (raw.includes('dai.ly/')) id = raw.split('dai.ly/')[1]?.split('?')[0] || '';
+        return id ? `https://www.dailymotion.com/embed/video/${id}?autoplay=1&ui-logo=0` : raw;
+    }
+    return raw;
+}
+
 /* ── ÉTOILES ── */
 function starsHTML(rate) {
     const n = Math.max(0, Math.min(5, parseInt(rate) || 0));
@@ -1278,6 +1366,8 @@ function render() {
         card.addEventListener('click', e => {
             if (e.target.closest('.del-trigger') && isAdmin) {
                 requestDelete(parseInt(e.target.closest('.del-trigger').dataset.del));
+            } else if (!e.target.closest('.del-trigger')) {
+                openDetail(id);
             }
         });
 
@@ -1377,7 +1467,7 @@ function loadImage(file) {
 
 /* ── MODAL ── */
 function clearForm() {
-    ['field-title','field-comment','field-release'].forEach(id => {
+    ['field-title','field-comment','field-release','field-trailer'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
     });
     document.querySelectorAll('input[name="star"]').forEach(r => r.checked = false);
@@ -1410,6 +1500,7 @@ function toggleModal(open, editId = null) {
             document.getElementById('field-cat').value      = m.category    || 'film';
             document.getElementById('field-release').value  = m.releaseDate || '';
             // populate
+            document.getElementById('field-trailer') && (document.getElementById('field-trailer').value = m.trailer ? m.trailer.replace('?autoplay=1&rel=0&modestbranding=1','').replace('https://www.youtube.com/embed/','https://www.youtube.com/watch?v=') : '');
             APP.base64Logo = m.logo || null;
             if (m.logo) {
                 const prevL = document.getElementById('preview-logo');
@@ -1444,8 +1535,8 @@ document.getElementById('btn-submit')?.addEventListener('click', async () => {
     const comment     = (document.getElementById('field-comment')?.value  || '').trim();
     const category    = document.getElementById('field-cat')?.value        || 'film';
     const releaseDate = (document.getElementById('field-release')?.value  || '').trim();
-    const rawLink = '';
-    const link    = '';
+    const rawTrailer = (document.getElementById('field-trailer')?.value || '').trim();
+    const link = rawTrailer ? convertToEmbed(rawTrailer) : '';
     const rate        = parseInt(document.querySelector('input[name="star"]:checked')?.value || '0');
 
     if (!title) { showToast('Le titre est obligatoire', 'error'); document.getElementById('field-title')?.focus(); return; }
@@ -1454,10 +1545,10 @@ document.getElementById('btn-submit')?.addEventListener('click', async () => {
     if (APP.editingId !== null) {
         const idx = APP.movies.findIndex(x => x.id === APP.editingId);
         if (idx === -1) { showToast('Introuvable', 'error'); return; }
-        APP.movies[idx] = { ...APP.movies[idx], title, comment, rate, category, releaseDate, link, img: APP.base64Image || APP.movies[idx].img, logo: APP.base64Logo !== null ? APP.base64Logo : (APP.movies[idx].logo||''), updatedAt: Date.now() };
+        APP.movies[idx] = { ...APP.movies[idx], title, comment, rate, category, releaseDate, trailer: link, img: APP.base64Image || APP.movies[idx].img, logo: APP.base64Logo !== null ? APP.base64Logo : (APP.movies[idx].logo||''), updatedAt: Date.now() };
         showToast('Mise à jour effectuée ✓', 'success');
     } else {
-        APP.movies.unshift({ id: Date.now(), createdAt: Date.now(), title, comment, rate, category, releaseDate, link, img: APP.base64Image || '', logo: APP.base64Logo || '' });
+        APP.movies.unshift({ id: Date.now(), createdAt: Date.now(), title, comment, rate, category, releaseDate, trailer: link, img: APP.base64Image || '', logo: APP.base64Logo || '' });
         showToast(`"${title}" ajouté ✓`, 'success');
     }
 
@@ -1688,6 +1779,85 @@ async function initCineSaad() {
     if (enterBtn) enterBtn.addEventListener('click', openPortfolio);
     if (backBtn)  backBtn.addEventListener('click',  closePortfolio);
 })();
+
+/* ═══ DETAIL PANEL ══════════════════════════════════════════════════ */
+function openDetail(id) {
+    const m = APP.movies.find(x => x.id === id);
+    if (!m) return;
+
+    // Backdrop
+    document.getElementById('detail-backdrop').style.backgroundImage = m.img ? `url(${m.img})` : '';
+
+    // Poster
+    document.getElementById('detail-poster-img').src = m.img || '';
+
+    // Badge
+    document.getElementById('detail-badge').textContent = m.category === 'serie' ? 'SÉRIE' : 'FILM';
+
+    // Titre
+    document.getElementById('detail-title').textContent = m.title || '';
+
+    // Meta pills
+    const metaRow = document.getElementById('detail-meta-row');
+    const year = m.releaseDate ? String(m.releaseDate).slice(0,4) : '';
+    let metaHTML = '';
+    if (m.rate) metaHTML += `<span class="detail-meta-pill red">★ ${Number(m.rate).toFixed(1)} / 5</span>`;
+    if (year)   metaHTML += `<span class="detail-meta-pill">📅 ${year}</span>`;
+    metaRow.innerHTML = metaHTML;
+
+    // Synopsis
+    document.getElementById('detail-synopsis').textContent = m.comment || 'Aucun synopsis disponible.';
+
+    // Trailer
+    const trailerWrap = document.getElementById('detail-trailer-wrap');
+    const iframe      = document.getElementById('detail-iframe');
+    if (m.trailer) {
+        iframe.src = m.trailer;
+        trailerWrap.style.display = 'block';
+    } else {
+        iframe.src = '';
+        trailerWrap.style.display = 'none';
+    }
+
+    document.getElementById('detail-layer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+    document.getElementById('detail-layer').classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { document.getElementById('detail-iframe').src = ''; }, 500);
+}
+
+document.getElementById('detail-close')?.addEventListener('click', closeDetail);
+document.getElementById('detail-layer')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('detail-layer')) closeDetail();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+/* ═══ COMMANDES CONSOLE ═══════════════════════════════════════════════
+   Dans la console du navigateur (F12) :
+   - Cacher le bouton Ajouter  : hideAdd()
+   - Afficher le bouton Ajouter : showAdd()
+═════════════════════════════════════════════════════════════════════= */
+window.hideAdd = function() {
+    const btn = document.getElementById('btn-open-modal');
+    if (btn) { btn.style.display = 'none'; localStorage.setItem('cs_add_hidden','1'); }
+    console.log('%c[CineSaad] Bouton Ajouter masqué ✓', 'color:#f70000;font-weight:bold');
+};
+window.showAdd = function() {
+    const btn = document.getElementById('btn-open-modal');
+    if (btn) { btn.style.display = ''; localStorage.removeItem('cs_add_hidden'); }
+    console.log('%c[CineSaad] Bouton Ajouter visible ✓', 'color:#00ff88;font-weight:bold');
+};
+// Restaurer l'état au chargement
+(function(){
+    if (localStorage.getItem('cs_add_hidden') === '1') {
+        const btn = document.getElementById('btn-open-modal');
+        if (btn) btn.style.display = 'none';
+    }
+})();
+
 </script>
 </body>
 </html>
